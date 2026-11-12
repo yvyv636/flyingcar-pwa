@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="description" content="白漠飞车：一辆会飞的越野赛车。3D 卡通渲染，莫比乌斯画风，可驾驶、可飞行，支持白天夜晚与离线安装。">
+  <meta name="theme-color" content="#fffdf8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="白漠飞车">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>白漠飞车 · WHITE DUST 07</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="preload" href="vendor/three.module.min.js" as="script" crossorigin>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.min.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <canvas id="scene" aria-label="白漠飞车三维场景"></canvas>
+    <div class="paper-grain" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div id="speedLines" class="speed-lines" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="brand" aria-label="白漠飞车">
+        <div class="brand-mark"><span>07</span></div>
+        <div class="brand-copy">
+          <strong>白漠飞车</strong>
+          <span>WHITE DUST · OFF-ROAD</span>
+        </div>
+      </div>
+
+      <nav class="utility-bar" aria-label="设置">
+        <button id="installBtn" class="icon-button install-button hidden" type="button" aria-label="安装到主屏幕" title="安装到主屏幕">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+        </button>
+        <button id="themeBtn" class="icon-button" type="button" aria-label="切换白天夜晚" title="切换白天 / 夜晚">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M19.4 4.6 18 6M6 18l-1.4 1.4"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.7A8.2 8.2 0 0 1 9.3 4a8.2 8.2 0 1 0 10.7 10.7Z"/></svg>
+        </button>
+        <button id="soundBtn" class="icon-button" type="button" aria-label="静音" title="声音开关">
+          <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+          <svg class="icon-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="m16 9 5 5m0-5-5 5"/></svg>
+        </button>
+        <button id="cameraBtn" class="icon-button" type="button" aria-label="切换镜头" title="切换镜头">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.4-2h7.2L17 8h3v10H4V8Z"/><circle cx="12" cy="13" r="3.2"/></svg>
+        </button>
+        <button id="helpBtn" class="icon-button" type="button" aria-label="查看操作说明" title="操作说明">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9.2a2.4 2.4 0 1 1 3.4 2.2c-.7.35-1.1.85-1.1 1.6v.5"/><circle cx="12" cy="17.2" r=".7" fill="currentColor" stroke="none"/></svg>
+        </button>
+      </nav>
+    </header>
+
+    <section class="mode-card" aria-live="polite">
+      <div id="modeGlyph" class="mode-glyph" aria-hidden="true">
+        <span class="wheel-glyph"></span>
+        <svg class="wing-glyph" viewBox="0 0 32 24"><path d="M2 13c5-.8 7.7-6.4 12.6-6.4 3.8 0 5.8 2.8 9.7 2.8l3.7-3v11.4l-3.7-3c-3.9 0-5.9 2.8-9.7 2.8C9.7 17.6 7 12 2 11.2v1.8Z"/><path d="M15.5 6.8V3.2"/></svg>
+      </div>
+      <div class="mode-copy">
+        <span class="micro-label">DRIVE STATUS</span>
+        <strong id="modeLabel">地面行驶</strong>
+        <span id="modeSubLabel">轮下生风 · 寻找石块</span>
+      </div>
+      <div class="mode-meter"><i id="modeMeterFill"></i></div>
+    </section>
+
+    <section class="speed-cluster" aria-label="速度">
+      <div class="speed-readout">
+        <span id="speedValue">000</span>
+        <small>KM/H</small>
+      </div>
+      <div class="speed-track"><i id="speedFill"></i></div>
+      <div id="altimeter" class="altimeter">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M4 6l4-4 4 4"/></svg>
+        <span>离地 <strong id="altitudeValue">0.0</strong> m</span>
+      </div>
+    </section>
+
+    <aside class="hint-panel" aria-label="键盘操作">
+      <p class="micro-label">QUICK CONTROLS</p>
+      <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>驾驶 / 转向</span></div>
+      <div><kbd>F</kbd><span>展开机翼</span><kbd>Shift</kbd><span>推进</span></div>
+      <div><kbd>Q</kbd><kbd>E</kbd><span>升降</span><kbd>H</kbd><span>鸣笛</span></div>
+      <div><kbd>N</kbd><span>昼夜</span><kbd>M</kbd><span>静音</span><kbd>C</kbd><span>镜头</span></div>
+    </aside>
+
+    <div id="mobileControls" class="mobile-controls" aria-label="触屏操作">
+      <div id="joystick" class="joystick" aria-label="行驶摇杆">
+        <div class="joystick-ring"></div>
+        <div id="joystickKnob" class="joystick-knob"><span></span></div>
+        <span class="joystick-label joystick-label-up">前</span>
+        <span class="joystick-label joystick-label-left">左</span>
+        <span class="joystick-label joystick-label-right">右</span>
+        <span class="joystick-label joystick-label-down">后</span>
+      </div>
+
+      <div class="action-cluster">
+        <div class="altitude-buttons">
+          <button id="altUpBtn" class="round-action altitude-action" type="button" aria-label="升高">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m0 0L6 11m6-6 6 6"/></svg>
+          </button>
+          <button id="altDownBtn" class="round-action altitude-action" type="button" aria-label="降低">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m0 0 6-6m-6 6-6-6"/></svg>
+          </button>
+        </div>
+        <button id="boostBtn" class="round-action boost-action" type="button" aria-label="加速">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 6 8 6-8 6V6Zm9 0 5 6-5 6V6Z"/></svg>
+          <span>推进</span>
+        </button>
+        <button id="hornBtn" class="round-action horn-action" type="button" aria-label="鸣笛">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16 8.5a5 5 0 0 1 0 7"/></svg>
+          <span>鸣笛</span>
+        </button>
+        <button id="flightBtn" class="round-action flight-action" type="button" aria-label="切换飞行模式">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 17c6-1 8-7 13-7 4 0 6 3 10 3l3-3v12l-3-3c-4 0-6 3-10 3-5 0-7-6-13-7v2Z"/><path d="M16 10V6"/></svg>
+          <span id="flightBtnLabel">起飞</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      <span id="toastIcon" class="toast-icon"></span>
+      <span id="toastText">准备出发</span>
+    </div>
+
+    <div id="rotateNote" class="rotate-note" aria-hidden="true">
+      <span>横屏体验更开阔</span>
+    </div>
+
+    <section id="startScreen" class="start-screen">
+      <div class="start-poster">
+        <div class="poster-sun" aria-hidden="true">
+          <span></span>
+        </div>
+        <div class="poster-number" aria-hidden="true">07</div>
+        <div class="poster-content">
+          <p class="poster-kicker"><span>MOEBIUS MOTOR CLUB</span><span>EST. 20XX</span></p>
+          <h1>白漠<br><em>飞车</em></h1>
+          <p class="poster-en">WHITE DUST</p>
+          <p class="poster-lede">纯白荒原上，一辆会飞的越野赛车。<br>折叠车轮，展开机翼，向没有尽头的白昼出发。</p>
+
+          <div class="poster-controls">
+            <div><b>W A S D</b><span>驾驶</span></div>
+            <div><b>F</b><span>飞行</span></div>
+            <div><b>H</b><span>鸣笛</span></div>
+            <div><b>N</b><span>昼夜</span></div>
+          </div>
+
+          <button id="startBtn" class="start-button" type="button">
+            <span class="start-button-label">点火出发</span>
+            <span class="start-button-icon" aria-hidden="true">
+              <svg viewBox="0 0 40 24"><path d="M2 12h34M26 3l10 9-10 9"/></svg>
+            </span>
+          </button>
+
+          <div class="poster-badges">
+            <span><i class="badge-dot"></i>键盘 / 触屏</span>
+            <span>可离线安装</span>
+            <span>纯音效 · 无背景乐</span>
+          </div>
+        </div>
+
+        <div class="poster-side" aria-hidden="true">
+          <div class="side-line"></div>
+          <span>FLIGHT<br>MODE</span>
+          <div class="side-arrow"></div>
+          <small>PUSH TO FLY</small>
+        </div>
+
+        <div class="poster-strip" aria-hidden="true">
+          <span>白漠公路 · 07 号车</span>
+          <span>ALT. 0—9800 M</span>
+          <span>MOEBIUS CEL SHADING</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="helpPanel" class="help-panel" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
+      <div class="help-card">
+        <button id="closeHelpBtn" class="close-button" type="button" aria-label="关闭帮助">×</button>
+        <p class="micro-label">PILOT MANUAL</p>
+        <h2 id="helpTitle">驾驶手册</h2>
+        <div class="help-grid">
+          <div><span class="help-key">W / ↑</span><p>油门前进</p></div>
+          <div><span class="help-key">S / ↓</span><p>刹车与倒车</p></div>
+          <div><span class="help-key">A D / ← →</span><p>转向</p></div>
+          <div><span class="help-key">Shift</span><p>推进加速</p></div>
+          <div><span class="help-key">F / Space</span><p>飞行 / 降落</p></div>
+          <div><span class="help-key">Q / E</span><p>飞行时降低 / 升高</p></div>
+          <div><span class="help-key">H</span><p>鸣笛（可长按）</p></div>
+          <div><span class="help-key">N</span><p>切换昼夜</p></div>
+          <div><span class="help-key">M</span><p>声音开关</p></div>
+          <div><span class="help-key">C</span><p>切换镜头距离</p></div>
+        </div>
+        <p class="help-note">触屏设备可使用左下方摇杆，右侧按钮控制起飞、推进、鸣笛与高度。</p>
+      </div>
+    </div>
+
+    <noscript>
+      <div class="fallback">需要启用 JavaScript 才能驶入白漠。</div>
+    </noscript>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

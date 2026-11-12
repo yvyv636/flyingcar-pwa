@@ -1,0 +1,72 @@
+{
+  "id": "./",
+  "name": "白漠飞车 · WHITE DUST 07",
+  "short_name": "白漠飞车",
+  "description": "一辆会飞的越野赛车。折叠车轮、展开机翼，在纯白荒原与星夜之间自由驾驶。",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fffdf8",
+  "theme_color": "#172029",
+  "categories": ["games", "entertainment"],
+  "screenshots": [
+    {
+      "src": "screenshots/desktop-flight.jpg",
+      "sizes": "1440x900",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "白昼飞行模式"
+    },
+    {
+      "src": "screenshots/desktop-night.jpg",
+      "sizes": "1440x900",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "夜晚车灯与底盘氛围光"
+    },
+    {
+      "src": "screenshots/mobile-night.jpg",
+      "sizes": "390x844",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "手机触屏飞行"
+    }
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "在夜色中出发",
+      "short_name": "夜航",
+      "description": "打开白漠飞车并切换到夜晚模式",
+      "url": "./?night=1",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "white-dust-07",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "白漠飞车 · WHITE DUST 07 — a Moebius-inspired flying off-road racer PWA",
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "serve": "python -m http.server 4173 --bind 127.0.0.1",
+    "icons": "python tools/make_icons.py"
+  },
+  "keywords": [
+    "three.js",
+    "pwa",
+    "cel-shading",
+    "moebius",
+    "racing"
+  ],
+  "license": "MIT"
+}
